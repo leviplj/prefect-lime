@@ -7,7 +7,7 @@ from typing import Any, Dict
 from prefect.engine.result import Result
 
 from splitgraph.config.config import create_config_dict, patch_config
-from splitgraph.core.engine import repository_exists
+from splitgraph.core.engine import repository_exists, get_engine
 from splitgraph.core.repository import Repository
 from splitgraph.engine.postgres.engine import PostgresEngine
 from splitgraph.ingestion.pandas import df_to_table
@@ -143,6 +143,8 @@ class SplitgraphResult(Result):
             new_img = repo.commit(comment=new.comment)
             new_img.tag(new.tag)
 
+        repo.push(self.get_upstream(repo))
+
         self.logger.debug("Finished uploading result to {}...".format(new.table))
 
         return new
@@ -170,3 +172,7 @@ class SplitgraphResult(Result):
             yield
         finally:
             engine.commit()
+
+    def get_upstream(self, repository: Repository):
+        return Repository.from_template(repository, engine=get_engine('bedrock'))
+
