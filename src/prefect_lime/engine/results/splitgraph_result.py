@@ -54,17 +54,15 @@ class SplitgraphResult(Result):
         env: Dict[str, Any] = None,
         **kwargs: Any
     ) -> None:
-
-        cfg = patch_config(create_config_dict(), env or dict())
-        self.engine = PostgresEngine(name='SGResult', conn_params=cfg)
-        self.engine.initialize(False, False)
-        self.repository = Repository(namespace=namespace, repository=repo_name, engine=self.engine)
-
-        super().__init__(**kwargs)
+        self.env = env or dict()
+        self.namespace = namespace
+        self.repo_name = repo_name
         self.auto_init_repo = auto_init_repo
         self.table = table
         self.comment = comment
         self.tag = tag
+
+        super().__init__(**kwargs)
 
     def format(self, **kwargs: Any) -> "SplitgraphResult":
         """
@@ -118,11 +116,17 @@ class SplitgraphResult(Result):
             - Result: returns a new `Result` with both `value`, `comment`, `table`, and `tag` attributes
         """
 
-        assert isinstance(value_, pd.DataFrame)
+        cfg = patch_config(create_config_dict(), self.env or dict())
+        engine = PostgresEngine(name='SplitgraphResult', conn_params=cfg)
+        engine.initialize()
+        repo = Repository(namespace=self.namespace, repository=self.repo_name, engine=engine)
 
-        if not repository_exists(self.repository) and self.auto_init_repo:
-            self.logger.debug("Creating repo {}/{}...".format(self.repository.namespace, self.repository.repository))
-            self.repository.init()
+        assert isinstance(value_, pd.DataFrame)
+        assert engine.connected
+
+        if not repository_exists(repo) and self.auto_init_repo:
+            self.logger.debug("Creating repo {}/{}...".format(repo.namespace, repo.repository))
+            repo.init()
 
         new = self.format(**kwargs)
         new.value = value_
@@ -130,12 +134,12 @@ class SplitgraphResult(Result):
         self.logger.debug("Starting to upload result to {}...".format(new.table))
 
         with self.atomic():
-            img = self.repository.head
+            img = repo.head
             img.checkout(force=True)
 
-            df_to_table(new.value, repository=self.repository, table=new.table, if_exists='patch')
+            df_to_table(new.value, repository=repo, table=new.table, if_exists='patch')
 
-            new_img = self.repository.commit(comment=new.comment)
+            new_img = repo.commit(comment=new.comment)
             new_img.tag(new.tag)
 
         self.logger.debug("Finished uploading result to {}...".format(new.table))
