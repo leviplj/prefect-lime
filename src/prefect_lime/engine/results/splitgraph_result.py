@@ -134,7 +134,7 @@ class SplitgraphResult(Result):
 
         self.logger.debug("Starting to upload result to {}...".format(new.table))
 
-        with self.atomic():
+        with self.atomic(engine):
             img = repo.head
             img.checkout(force=True)
 
@@ -165,8 +165,8 @@ class SplitgraphResult(Result):
         raise NotImplementedError
 
     @contextmanager
-    def atomic(self):
+    def atomic(self, engine):
         try:
             yield
         finally:
-            self.engine.commit()
+            engine.commit()
