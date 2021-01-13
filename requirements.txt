@@ -1,0 +1,2 @@
+prefect==0.13.18
+splitgraph==0.2.4
