@@ -143,7 +143,10 @@ class SplitgraphResult(Result):
             new_img = repo.commit(comment=new.comment)
             new_img.tag(new.tag)
 
-        repo.push(self.get_upstream(repo))
+        repo.push(
+            self.get_upstream(repo),
+            handler="S3",
+        )
 
         self.logger.debug("Finished uploading result to {}...".format(new.table))
 
