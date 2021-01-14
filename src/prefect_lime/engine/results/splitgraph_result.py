@@ -147,6 +147,7 @@ class SplitgraphResult(Result):
             handler="S3",
         )
 
+        engine.close()
         self.logger.debug("Finished uploading result to {}...".format(new.table))
 
         return new
@@ -176,5 +177,5 @@ class SplitgraphResult(Result):
             engine.commit()
 
     def get_upstream(self, repository: Repository):
-        return Repository.from_template(repository, engine=get_engine('bedrock'))
+        return Repository.from_template(repository, engine=get_engine('bedrock', autocommit=True))
 
