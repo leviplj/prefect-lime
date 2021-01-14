@@ -128,6 +128,8 @@ class SplitgraphResult(Result):
             self.logger.debug("Creating repo {}/{}...".format(repo.namespace, repo.repository))
             repo.init()
 
+        # TODO: Retrieve the repo from bedrock first
+
         new = self.format(**kwargs)
         new.value = value_
 
@@ -142,10 +144,11 @@ class SplitgraphResult(Result):
             new_img = repo.commit(comment=new.comment)
             new_img.tag(new.tag)
 
-        repo.push(
-            self.get_upstream(repo),
-            handler="S3",
-        )
+        if (repo.diff(new.table, img, new_img)):
+            repo.push(
+                self.get_upstream(repo),
+                handler="S3",
+            )
 
         engine.close()
         self.logger.debug("Finished uploading result to {}...".format(new.table))
