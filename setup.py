@@ -1,6 +1,11 @@
 import setuptools
 
-install_requires = open("requirements.txt").read().strip().split("\n")
+install_requires = [
+    'prefect==0.13.18',
+    'splitgraph==0.2.4',
+    'pandas==1.2.0',
+    'sqlalchemy==1.3.22    ',
+]
 
 setuptools.setup(
     name="prefect-lime",
