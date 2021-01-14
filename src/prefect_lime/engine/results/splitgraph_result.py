@@ -117,7 +117,6 @@ class SplitgraphResult(Result):
         """
 
         cfg = patch_config(create_config_dict(), self.env or dict())
-        self.logger.info(cfg)
         engine = PostgresEngine(name='SplitgraphResult', conn_params=cfg)
         engine.initialize()
         repo = Repository(namespace=self.namespace, repository=self.repo_name, engine=engine)
