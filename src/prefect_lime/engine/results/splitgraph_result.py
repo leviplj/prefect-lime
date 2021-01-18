@@ -139,7 +139,7 @@ class SplitgraphResult(Result):
             img = repo.head
             img.checkout(force=True)
 
-            df_to_table(new.value, repository=repo, table=new.table, if_exists='patch')
+            df_to_table(new.value, repository=repo, table=new.table, if_exists='replace')
 
             new_img = repo.commit(comment=new.comment)
             new_img.tag(new.tag)
