@@ -141,7 +141,7 @@ class SplitgraphResult(Result):
 
             df_to_table(new.value, repository=repo, table=new.table, if_exists='replace')
 
-            new_img = repo.commit(comment=new.comment)
+            new_img = repo.commit(comment=new.comment, chunk_size=10000)
             new_img.tag(new.tag)
 
         if (repo.diff(new.table, img, new_img)):
