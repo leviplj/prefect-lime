@@ -125,7 +125,7 @@ class SplitgraphResult(Result):
         assert engine.connected
 
         if not repository_exists(repo) and self.auto_init_repo:
-            self.logger.debug("Creating repo {}/{}...".format(repo.namespace, repo.repository))
+            self.logger.info("Creating repo {}/{}...".format(repo.namespace, repo.repository))
             repo.init()
 
         # TODO: Retrieve the repo from bedrock first
@@ -133,18 +133,23 @@ class SplitgraphResult(Result):
         new = self.format(**kwargs)
         new.value = value_
 
-        self.logger.debug("Starting to upload result to {}...".format(new.table))
+        self.logger.info("Starting to upload result to {}...".format(new.table))
 
         with self.atomic(engine):
+            self.logger.info("checkout")
             img = repo.head
             img.checkout(force=True)
 
+            self.logger.info("df to table")
             df_to_table(new.value, repository=repo, table=new.table, if_exists='replace')
 
+            self.logger.info("commit")
             new_img = repo.commit(comment=new.comment, chunk_size=10000)
             new_img.tag(new.tag)
 
+
         # if (repo.diff(new.table, img, new_img)):
+        self.logger.info("push")
         repo.push(
             self.get_upstream(repo),
             handler="S3",
@@ -154,7 +159,7 @@ class SplitgraphResult(Result):
         )
 
         engine.close()
-        self.logger.debug("Finished uploading result to {}...".format(new.table))
+        self.logger.info("Finished uploading result to {}...".format(new.table))
 
         return new
 
@@ -180,6 +185,7 @@ class SplitgraphResult(Result):
         try:
             yield
         finally:
+            self.logger.info("engine commit")
             engine.commit()
 
     def get_upstream(self, repository: Repository):
