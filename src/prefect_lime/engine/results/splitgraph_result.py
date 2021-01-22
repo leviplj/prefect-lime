@@ -144,14 +144,14 @@ class SplitgraphResult(Result):
             new_img = repo.commit(comment=new.comment, chunk_size=10000)
             new_img.tag(new.tag)
 
-        if (repo.diff(new.table, img, new_img)):
-            repo.push(
-                self.get_upstream(repo),
-                handler="S3",
-                overwrite_objects=True,
-                overwrite_tags=True,
-                reupload_objects=True,
-            )
+        # if (repo.diff(new.table, img, new_img)):
+        repo.push(
+            self.get_upstream(repo),
+            handler="S3",
+            overwrite_objects=True,
+            overwrite_tags=True,
+            reupload_objects=True,
+        )
 
         engine.close()
         self.logger.debug("Finished uploading result to {}...".format(new.table))
