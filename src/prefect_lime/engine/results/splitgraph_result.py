@@ -148,6 +148,9 @@ class SplitgraphResult(Result):
             repo.push(
                 self.get_upstream(repo),
                 handler="S3",
+                overwrite_objects=True,
+                overwrite_tags=True,
+                reupload_objects=True,
             )
 
         engine.close()
