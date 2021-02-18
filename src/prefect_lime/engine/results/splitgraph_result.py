@@ -52,6 +52,7 @@ class SplitgraphResult(Result):
         comment: str = None,
         tag: str = None,
         env: Dict[str, Any] = None,
+        auto_push: bool = True,
         **kwargs: Any
     ) -> None:
         self.env = env or dict()
@@ -61,6 +62,7 @@ class SplitgraphResult(Result):
         self.table = table
         self.comment = comment
         self.tag = tag
+        self.auto_push = auto_push
 
         super().__init__(**kwargs)
 
@@ -149,14 +151,15 @@ class SplitgraphResult(Result):
 
 
         # if (repo.diff(new.table, img, new_img)):
-        self.logger.info("push")
-        repo.push(
-            self.get_upstream(repo),
-            handler="S3",
-            overwrite_objects=True,
-            overwrite_tags=True,
-            reupload_objects=True,
-        )
+        if self.auto_push:
+            self.logger.info("push")
+            repo.push(
+                self.get_upstream(repo),
+                handler="S3",
+                overwrite_objects=True,
+                overwrite_tags=True,
+                reupload_objects=True,
+            )
 
         engine.close()
         self.logger.info("Finished uploading result to {}...".format(new.table))

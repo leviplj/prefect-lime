@@ -1,10 +1,10 @@
 import setuptools
 
 install_requires = [
-    'prefect==0.14.6',
-    'splitgraph==0.2.4',
+    'prefect>=0.14.6',
+    'splitgraph>=0.2.4',
     'pandas==1.2.0',
-    'sqlalchemy==1.3.22    ',
+    'sqlalchemy==1.3.22',
 ]
 
 setuptools.setup(
